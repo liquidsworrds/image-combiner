@@ -1,6 +1,7 @@
 mod args;
 use args::Args;
 use image::{ ImageFormat, DynamicImage, io::Reader, GenericImageView, imageops::FilterType::Triangle, ImageError };
+use std::convert::TryInto;
 
 #[derive(Debug)]
 enum ImageDataErrors {
@@ -21,8 +22,8 @@ struct FloatingImage {
 
 impl FloatingImage {
     fn new(width: u32, height: u32, name: String) -> Self {
-        let buffer_capacity = 3664777;
-        let buffer = Vec::with_capacity(buffer_capacity);
+        let buffer_capacity = height * width * 4;
+        let buffer = Vec::with_capacity(buffer_capacity.try_into().unwrap());
         FloatingImage { 
             width, 
             height,
