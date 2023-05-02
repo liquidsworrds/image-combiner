@@ -1,7 +1,6 @@
 mod args;
 use args::Args;
 use image::{ ImageFormat, DynamicImage, io::Reader, GenericImageView, imageops::FilterType::Triangle, ImageError };
-use std::convert::TryInto;
 
 #[derive(Debug)]
 enum ImageDataErrors {
@@ -82,7 +81,7 @@ fn find_image_by_path(path: String) -> Result<(DynamicImage, ImageFormat), Image
 fn get_smallest_dimension(dim_1: (u32, u32), dim_2: (u32, u32)) -> (u32, u32) {
     let pix_1 = dim_1.0 * dim_1.1;
     let pix_2 = dim_2.0 * dim_2.1;
-    return if pix_1 > pix_2 { dim_1 } else { dim_2 };
+    return if pix_1 < pix_2 { dim_1 } else { dim_2 };
 }
 
 fn standardize_size(image_1: DynamicImage, image_2: DynamicImage) -> (DynamicImage, DynamicImage) {
@@ -97,8 +96,8 @@ fn standardize_size(image_1: DynamicImage, image_2: DynamicImage) -> (DynamicIma
 }
 
 fn combine_images(image_1: DynamicImage, image_2: DynamicImage) -> Vec<u8> {
-    let vec_1 = image_1.to_rgb8().into_vec();
-    let vec_2 = image_2.to_rgb8().into_vec();
+    let vec_1 = image_1.to_rgba8().into_vec();
+    let vec_2 = image_2.to_rgba8().into_vec();
 
     alternate_pixels(vec_1, vec_2)
 }
@@ -122,7 +121,7 @@ fn alternate_pixels(vec_1: Vec<u8>, vec_2: Vec<u8>) -> Vec<u8>{
 fn set_rgba(vect: &Vec<u8>, start: usize, end: usize) -> Vec<u8> {
     let mut rgba = Vec::new();
     for i in start..=end {
-        let val: u8 = match vect.get(i) {
+        let val = match vect.get(i) {
             Some(d) => *d,
             None => panic!("Index is out of bounds")
         };
